@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Natasha</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #121212;
+            color: #f1f1f1;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            background-color: #1f1f1f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .footer {
+            background-color: #1f1f1f;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .header img {
+            width: 40px;
+            height: 50px;
+            margin-right: 70%;
+            margin-bottom: 0px;
+            position: fixed;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: #00bcd4;
+            margin: 0;
+        }
+
+        .header h2 {
+            font-size: 1rem;
+            color: #f1f1f1;
+            margin-top: 55px;
+            margin-right: 50%;
+        }
+
+        #chatbox {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin: 10px;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #212121;
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #333;
+        }
+
+        .chat-message {
+            max-width: 80%; /* Prevents message boxes from extending too far */
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            word-wrap: break-word; /* Ensures long words break */
+            white-space: pre-wrap; /* Preserve line breaks */
+        }
+
+        .chat-message.user {
+            background-color: #1e88e5;
+            color: #fff;
+            align-self: flex-end;
+            text-align: left;
+            padding: 10px 15px; /* Add padding for user's messages */
+            border-radius: 15px 15px 0 15px; /* Rounded corners */
+        }
+
+        .chat-message.bot {
+            background-color: #424242;
+            color: #f1f1f1;
+            align-self: flex-start;
+            text-align: left;
+            border-radius: 15px 15px 15px 0; /* Rounded corners */
+            padding: 10px; /* Add padding for readability */
+        }
+
+        #input-container {
+            width: 70%;
+            margin-left: 15%;
+            display: flex;
+            padding: 10px;
+            background-color: #1f1f1f;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #00bcd4;
+            border-radius: 20px;
+            background-color: #333;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        #userInput:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        .button {
+            background-color: #00bcd4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 1rem;
+        }
+
+        .button:hover {
+            background-color: #0097a7;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Natasha Logo">
+        <h2>JI Technologies</h2>
+        <h1>Natasha</h1>
+    </div>
+    
+    <div id="chatbox"></div>
+
+    <div id="input-container">
+        <input type="text" id="userInput" placeholder="Type your message here..." />
+        <button onclick="sendMessage()" class="button">Send</button>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 JI Technologies. All rights reserved.</p>
+    </div>
+
+    <script>
+        // Handle Enter key to send message
+        document.getElementById('userInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent form submission
+                sendMessage(); // Call sendMessage
+            }
+        });
+
+        function sendMessage() {
+            const userInput = document.getElementById('userInput').value.trim();
+            if (userInput) {
+                document.getElementById('userInput').value = ''; // Clear input field
+
+                // Append user message to chatbox
+                const chatbox = document.getElementById('chatbox');
+                appendMessage(userInput, 'user');
+
+                // Send request to the Flask backend
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_input: userInput })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const chatbox = document.getElementById('chatbox');
+                    const formattedResponse = data.response
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold for Markdown syntax
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italics for Markdown syntax
+                        .replace(/\n/g, '<br>'); // Line breaks
+
+                    chatbox.innerHTML += `
+                        <div class="chat-message bot">
+                            <strong>Natasha:</strong> ${formattedResponse}
+                        </div>`;
+                    chatbox.scrollTop = chatbox.scrollHeight; // Scroll to the bottom
+                });
+            }
+        }
+
+        function appendMessage(message, sender) {
+            const chatbox = document.getElementById('chatbox');
+            const messageElement = document.createElement('div');
+            messageElement.className = `chat-message ${sender}`;
+            messageElement.textContent = message;
+            chatbox.appendChild(messageElement);
+
+            // Scroll to the bottom of chatbox
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
