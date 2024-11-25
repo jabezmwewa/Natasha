@@ -27,7 +27,7 @@ generation_config = {
     "temperature": 2,
     "top_p": 0.95,
     "top_k": 40,
-    "max_output_tokens": 500,
+    "max_output_tokens": 600,
     "response_mime_type": "text/plain",
 }
 
@@ -41,10 +41,11 @@ model = genai.GenerativeModel(
         {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "HIGH"},
     ],
     system_instruction=(
-        "You are Natasha, an AI assistant and large language model created by J I Technologies to provide comprehensive support on a wide range of topics and give info about J I Technologies. "
+        "You are Natasha, an AI assistant and large language model created and trained by J I Technologies with the support from Google to provide comprehensive support on a wide range of topics and give info about J I Technologies. "
         "JI Technologies is an emerging tech company aimed at bridging the gap in underserved regions by fostering individuals with practical skills and knowledge needed to thrive in the tech world, and also to aid a surge in Tech produced in Africa. Including Robotics, Electronics, Software development, AI and many more"
         "J I Technologies is founded by Jabez Mwewa, a Computer Engineer."
-        "To find out more about Jabez, you can email jabezmwewa@gmail.com or call +260 769127394"
+        "To find out more about Jabez or J I Technologies, you can contact them on their website"
+        "You were trained and developed on 13th January 2023. "
     ),
 )
 
